@@ -130,30 +130,49 @@ Saves a match.
 - Node.js (for Angular)
 - Docker (to run Keycloak and PostgreSQL)
 
-### Run Services
+### Run Services locally
+
+From root directory:
 
 `docker network create my-bet-app-network`
 
 **POSTGRES**
 
-`docker build -t my-postgres -f docker/postgres .`
-`docker run -d --name my-postgres -p 5432:5432 --network my-bet-app-network my-postgres`
+```
+docker build -t my-postgres -f docker/postgres .
+docker run -d --name my-postgres -p 5432:5432 --network my-bet-app-network my-postgres
+```
 
 **BACKEND**
 
-`docker build -t my-bet-app -f docker/backend .`
-`docker run -d --name my-bet-app -p 8888:8888 --network my-bet-app-network my-bet-app`
+```
+mvn cean install
+docker build -t my-bet-app -f docker/backend .
+docker run -d --name my-bet-app -p 8888:8888 --network my-bet-app-network my-bet-app
+```
 
 **KEYCLOAK**
 
-`docker build -t my-keycloak -f docker/keycloak docker/`
-`docker run -d --name my-keycloak -p 8188:8080 --network my-bet-app-network my-keycloak`
+```
+docker build -t my-keycloak -f docker/keycloak docker
+docker run -d --name my-keycloak -p 8188:8080 --network my-bet-app-network my-keycloak
+```
 
 **FRONTEND**
 
-`docker build -t my-frontend -f docker/frontend .`
-`docker run -d --name my-frontend -p 4200:4200 --network my-bet-app-network my-frontend`
+```
+docker build -t my-frontend -f docker/frontend .
+docker run -d --name my-frontend -p 4200:4200 --network my-bet-app-network my-frontend
+```
 
+
+### Run services by just using docker
+
+`docker network create my-bet-app-network`
+`docker run -d --name my-postgres -p 5432:5432 --network my-bet-app-network fotisolgr/my-postgres:latest`
+`docker run -d --name my-keycloak -p 8188:8080 --network my-bet-app-network fotisolgr/my-keycloak:latest`
+`docker run -d --name my-bet-app -p 8888:8888 --network my-bet-app-network fotisolgr/my-bet-app:latest`
+`docker run -d --name my-frontend -p 4200:4200 --network my-bet-app-network fotisolgr/my-frontend:latest`
 
 ### Access application
 
