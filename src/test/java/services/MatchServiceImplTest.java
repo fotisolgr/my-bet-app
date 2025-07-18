@@ -374,6 +374,194 @@ public class MatchServiceImplTest {
 		assertThat(result.getError()).containsIgnoringCase("failed to fetch paginated matches");
 	}
 
+	@Test
+	void getMatchesPaginated_filtersByOwner() {
+		// Arrange
+		int page = 0;
+		int size = 10;
+		String sortBy = "matchDate";
+		String direction = "asc";
+		String owner = "alice";
+
+		Match match = createMatch(1L, "alice", Sport.BASKETBALL, LocalDate.now(), LocalTime.NOON);
+		List<Match> matches = List.of(match);
+		Page<Match> matchPage = new PageImpl<>(matches);
+
+		when(matchRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(matchPage);
+
+		// Act
+		Result<Page<MatchDTO>> result = matchService.getPaginatedMatches(page, size, sortBy, direction, owner, null,
+				null);
+
+		// Assert
+		assertThat(result.isSuccess()).isTrue();
+		assertThat(result.getValue().getTotalElements()).isEqualTo(1);
+		org.assertj.core.api.Assertions.assertThat(result.getValue().getContent()).extracting(MatchDTO::getMatchOwner)
+				.containsExactly("alice");
+	}
+
+	@Test
+	void getMatchesPaginated_filtersBySport() {
+		// Arrange
+		int page = 0;
+		int size = 10;
+		String sortBy = "matchDate";
+		String direction = "asc";
+		String sport = "BASKETBALL";
+
+		Match match = createMatch(1L, "bob", Sport.BASKETBALL, LocalDate.now(), LocalTime.of(10, 0));
+		List<Match> matches = List.of(match);
+		Page<Match> matchPage = new PageImpl<>(matches);
+
+		when(matchRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(matchPage);
+
+		// Act
+		Result<Page<MatchDTO>> result = matchService.getPaginatedMatches(page, size, sortBy, direction, null, sport,
+				null);
+
+		// Assert
+		assertThat(result.isSuccess()).isTrue();
+		assertThat(result.getValue().getTotalElements()).isEqualTo(1);
+		org.assertj.core.api.Assertions.assertThat(result.getValue().getContent()).extracting(MatchDTO::getSport)
+				.containsExactly(Sport.BASKETBALL);
+	}
+
+	@Test
+	void getMatchesPaginated_filtersByMatchDate() {
+		// Arrange
+		int page = 0;
+		int size = 10;
+		String sortBy = "matchDate";
+		String direction = "asc";
+		LocalDate targetDate = LocalDate.of(2024, 7, 15);
+
+		Match match = createMatch(1L, "charlie", Sport.FOOTBALL, targetDate, LocalTime.of(16, 0));
+		List<Match> matches = List.of(match);
+		Page<Match> matchPage = new PageImpl<>(matches);
+
+		when(matchRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(matchPage);
+
+		// Act
+		Result<Page<MatchDTO>> result = matchService.getPaginatedMatches(page, size, sortBy, direction, null, null,
+				targetDate);
+
+		// Assert
+		assertThat(result.isSuccess()).isTrue();
+		assertThat(result.getValue().getTotalElements()).isEqualTo(1);
+		org.assertj.core.api.Assertions.assertThat(result.getValue().getContent()).extracting(MatchDTO::getMatchDate)
+				.containsExactly(targetDate);
+	}
+
+	@Test
+	void getMatchesPaginated_filtersByOwnerAndSport() {
+		// Arrange
+		int page = 0;
+		int size = 10;
+		String sortBy = "matchDate";
+		String direction = "asc";
+		String owner = "alice";
+		String sport = "BASKETBALL";
+
+		LocalDate matchDate = LocalDate.now();
+
+		Match match = createMatch(1L, "alice", Sport.BASKETBALL, matchDate, LocalTime.of(11, 0));
+		List<Match> matches = List.of(match);
+		Page<Match> matchPage = new PageImpl<>(matches);
+
+		when(matchRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(matchPage);
+
+		// Act
+		Result<Page<MatchDTO>> result = matchService.getPaginatedMatches(page, size, sortBy, direction, owner, sport,
+				null);
+
+		// Assert
+		assertThat(result.isSuccess()).isTrue();
+		assertThat(result.getValue().getTotalElements()).isEqualTo(1);
+		org.assertj.core.api.Assertions.assertThat(result.getValue().getContent())
+				.extracting(MatchDTO::getMatchOwner, MatchDTO::getSport)
+				.containsExactly(tuple("alice", Sport.BASKETBALL));
+	}
+
+	@Test
+	void getMatchesPaginated_filtersBySportAndMatchDate() {
+		// Arrange
+		int page = 0;
+		int size = 10;
+		String sortBy = "matchDate";
+		String direction = "asc";
+		String sport = "FOOTBALL";
+		LocalDate matchDate = LocalDate.of(2024, 12, 10);
+
+		Match match = createMatch(2L, "bob", Sport.FOOTBALL, matchDate, LocalTime.of(15, 30));
+		List<Match> matches = List.of(match);
+		Page<Match> matchPage = new PageImpl<>(matches);
+
+		when(matchRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(matchPage);
+
+		// Act
+		Result<Page<MatchDTO>> result = matchService.getPaginatedMatches(page, size, sortBy, direction, null, sport,
+				matchDate);
+
+		// Assert
+		assertThat(result.isSuccess()).isTrue();
+		assertThat(result.getValue().getTotalElements()).isEqualTo(1);
+		org.assertj.core.api.Assertions.assertThat(result.getValue().getContent())
+				.extracting(MatchDTO::getSport, MatchDTO::getMatchDate)
+				.containsExactly(tuple(Sport.FOOTBALL, matchDate));
+	}
+
+	@Test
+	void getMatchesPaginated_filtersByAllFields() {
+		// Arrange
+		int page = 0;
+		int size = 10;
+		String sortBy = "matchDate";
+		String direction = "asc";
+		String owner = "carol";
+		String sport = "FOOTBALL";
+		LocalDate matchDate = LocalDate.of(2024, 11, 20);
+
+		Match match = createMatch(3L, "carol", Sport.FOOTBALL, matchDate, LocalTime.of(10, 0));
+		List<Match> matches = List.of(match);
+		Page<Match> matchPage = new PageImpl<>(matches);
+
+		when(matchRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(matchPage);
+
+		// Act
+		Result<Page<MatchDTO>> result = matchService.getPaginatedMatches(page, size, sortBy, direction, owner, sport,
+				matchDate);
+
+		// Assert
+		assertThat(result.isSuccess()).isTrue();
+		assertThat(result.getValue().getTotalElements()).isEqualTo(1);
+		org.assertj.core.api.Assertions.assertThat(result.getValue().getContent())
+				.extracting(MatchDTO::getMatchOwner, MatchDTO::getSport, MatchDTO::getMatchDate)
+				.containsExactly(tuple("carol", Sport.FOOTBALL, matchDate));
+	}
+
+	@Test
+	void getMatchesPaginated_returnsEmptyWhenNoMatchFoundForFilters() {
+		// Arrange
+		int page = 0;
+		int size = 10;
+		String sortBy = "matchDate";
+		String direction = "asc";
+		String owner = "unknown";
+		String sport = "BASKETBALL";
+		LocalDate matchDate = LocalDate.of(2024, 1, 1);
+
+		when(matchRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(Page.empty());
+
+		// Act
+		Result<Page<MatchDTO>> result = matchService.getPaginatedMatches(page, size, sortBy, direction, owner, sport,
+				matchDate);
+
+		// Assert
+		assertThat(result.isSuccess()).isTrue();
+		assertThat(result.getValue().getTotalElements()).isEqualTo(0);
+		org.assertj.core.api.Assertions.assertThat(result.getValue().getContent()).isEmpty();
+	}
+
 	private SaveMatchRequest createSaveMatchRequest() {
 		SaveMatchRequest request = new SaveMatchRequest();
 		request.setMatchDate("2025-08-22");
