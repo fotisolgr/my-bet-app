@@ -23,83 +23,86 @@
 ---
 ## API Endpoints
 
-### `GET /bets`
+### `GET /bet/matches`
 
 Fetches a paginated list of matches.
 
 **Query Parameters:**
 
-| Name      | Type   | Default | Description                                           |
-|-----------|--------|---------|-------------------------------------------------------|
-| page      | int    | 0       | The page number to retrieve                           |
-| size      | int    | 10      | Number of items per page                              |
-| sortBy    | string | dateTime| Field to sort by (e.g., `owner`, `sport`, `dateTime`) |
-| direction | string | desc    | Sort direction (`asc` or `desc`)                      |
+| Name      | Type      | Default   | Description                                                |
+|-----------|-----------|-----------|------------------------------------------------------------|
+| page      | int       | 0         | The page number to retrieve                                |
+| size      | int       | 10        | Number of items per page                                   |
+| sortBy    | string    | matchDate | Field to sort by (e.g., `owner`, `sport`, `dateTime`)      |
+| direction | string    | desc      | Sort direction (`asc` or `desc`)                           |
+| owner     | string    | -         | Filtering option (optional)                                |
+| sport     | string    | -         | Filtering option (optional)                                |
+| matchDate | LocalDate | -         | Filtering option (optional)                                |
 
 **Responses:**
 
-| Status Code | Description                                                   |
-|-------------|---------------------------------------------------------------|
-| 200 OK      | Request was successful (e.g. fetching matches, updating a match). |
-| 500 Internal Server Error | A server-side error occurred while processing the request.    |
+| Status Code               | Description                                                               |
+|---------------------------|---------------------------------------------------------------------------|
+| 200 OK                    | Request was successful (e.g. fetching matches, updating a match).         |
+| 500 Internal Server Error | A server-side error occurred while processing the request.                |
 
-### `POST /bets/saveMatch  (SECURED)`
+### `POST /bet/saveMatch  (SECURED)`
 
 Saves a match.
 
 **Request body Parameters:**
 
-| Name        | Type   | Default | Description                                |
-|-------------|--------|---------|--------------------------------------------|
-| description | String | 0       | The match description                      |
-| matchDate   | String | 10      | Date of match                              |
-| matchTime   | String | dateTime| Time of match                              |
-| teamA       | String | desc    | First team                                 |
-| teamB       | String | desc    | Second team                                |
-| Sport       | string | desc    | FOOTBALL OR BASKETBALL                     |
-| odds        | string | desc    | List of 3 exactly odds (WIN,DRAW AND LOSE) |
+| Name        | Type   | Default   | Description                                |
+|-------------|--------|-----------|--------------------------------------------|
+| description | String | 0         | The match description                      |
+| matchDate   | String | 10        | Date of match                              |
+| matchTime   | String | dateTime  | Time of match                              |
+| teamA       | String | desc      | First team                                 |
+| teamB       | String | desc      | Second team                                |
+| Sport       | string | desc      | FOOTBALL OR BASKETBALL                     |
+| odds        | string | desc      | List of 3 exactly odds (WIN,DRAW AND LOSE) |
 
 
 **Responses:**
 
-| Status Code | Description                                                                 |
-|-------------|-----------------------------------------------------------------------------|
-| 201 Created | A new resource (e.g. match) was successfully created.                       |
-| 400 Bad Request | The request body or parameters were invalid.                           |
-| 401 Unauthorized | The user is not authenticated (requires a valid token).               |
-| 409 Conflict | There was a conflict with the current state (e.g. duplicate match).        |
-| 500 Internal Server Error | A server-side error occurred while processing the request.   |
+| Status Code               | Description                                                              |
+|---------------------------|--------------------------------------------------------------------------|
+| 201 Created               | A new resource (e.g. match) was successfully created.                    |
+| 400 Bad Request           | The request body or parameters were invalid.                             |
+| 401 Unauthorized          | The user is not authenticated (requires a valid token).                  |
+| 409 Conflict              | There was a conflict with the current state (e.g. duplicate match).      |
+| 500 Internal Server Error | A server-side error occurred while processing the request.               |
 
 
-### `PUT /updateMatch/{matchId}  (SECURED)`
+### `PUT /bet/updateMatch/{matchId}  (SECURED)`
 
 **Request body Parameters:**
 
-| Name        | Type   | Default | Description                                |
-|-------------|--------|---------|--------------------------------------------|
-| matchId     | String | 0       | The match id to update                     |
-| description | String | 0       | The match description                      |
-| matchDate   | String | 10      | Date of match                              |
-| matchTime   | String | dateTime| Time of match                              |
-| teamA       | String | desc    | First team                                 |
-| teamB       | String | desc    | Second team                                |
-| Sport       | string | desc    | FOOTBALL OR BASKETBALL                     |
-| odds        | string | desc    | List of 3 exactly odds (WIN,DRAW AND LOSE) |
+| Name        | Type   | Default   | Description                                |
+|-------------|--------|-----------|--------------------------------------------|
+| matchId     | String | 0         | The match id to update                     |
+| description | String | 0         | The match description                      |
+| matchDate   | String | 10        | Date of match                              |
+| matchTime   | String | dateTime  | Time of match                              |
+| teamA       | String | desc      | First team                                 |
+| teamB       | String | desc      | Second team                                |
+| Sport       | string | desc      | FOOTBALL OR BASKETBALL                     |
+| odds        | string | desc      | List of 3 exactly odds (WIN,DRAW AND LOSE) |
 
 
 **Responses:**
 
-| Status Code | Description                                                                 |
-|-------------|-----------------------------------------------------------------------------|
-| 200 OK      | Request was successful (e.g. fetching matches, updating a match).           |
-| 400 Bad Request | The request body or parameters were invalid.                           |
-| 401 Unauthorized | The user is not authenticated (requires a valid token).               |
-| 403 Forbidden | The user is authenticated but not authorized to perform the action.       |
-| 404 Not Found | The requested resource was not found (e.g. match ID does not exist).      |
-| 500 Internal Server Error | A server-side error occurred while processing the request.   |
+| Status Code               | Description                                                             |
+|---------------------------|-------------------------------------------------------------------------|
+| 200 OK                    | Request was successful (e.g. fetching matches, updating a match).       |
+| 400 Bad Request           | The request body or parameters were invalid.                            |
+| 401 Unauthorized          | The user is not authenticated (requires a valid token).                 |
+| 403 Forbidden             | The user is authenticated but not authorized to perform the action.     |
+| 404 Not Found             | The requested resource was not found (e.g. match ID does not exist).    |
+| 500 Internal Server Error | A server-side error occurred while processing the request.              |
 
 
-### `DELETE /bets/{matchId} (SECURED)`
+### `DELETE /bet/matches/{matchId} (SECURED)`
 
 **Request body Parameters:**
 
@@ -109,13 +112,13 @@ Saves a match.
 
 **Responses:**
 
-| Status Code | Description                                                                 |
-|-------------|-----------------------------------------------------------------------------|
-| 204 No Content | Resource was successfully deleted (e.g. match deletion).                 |
-| 401 Unauthorized | The user is not authenticated (requires a valid token).               |
-| 403 Forbidden | The user is authenticated but not authorized to perform the action.       |
-| 404 Not Found | The requested resource was not found (e.g. match ID does not exist).      |
-| 500 Internal Server Error | A server-side error occurred while processing the request.   |
+| Status Code               | Description                                                          |
+|---------------------------|----------------------------------------------------------------------|
+| 204 No Content            | Resource was successfully deleted (e.g. match deletion).             |
+| 401 Unauthorized          | The user is not authenticated (requires a valid token).              |
+| 403 Forbidden             | The user is authenticated but not authorized to perform the action.  |
+| 404 Not Found             | The requested resource was not found (e.g. match ID does not exist). |
+| 500 Internal Server Error | A server-side error occurred while processing the request.           |
 
 
 ---

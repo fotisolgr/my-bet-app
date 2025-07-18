@@ -25,6 +25,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.*;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -213,7 +214,7 @@ public class MatchServiceImplTest {
 
 		assertThat(result.isSuccess()).isFalse();
 		assertThat(result.getError()).containsIgnoringCase("not_found");
-		verify(matchRepository, never()).delete(any());
+		verify(matchRepository, never()).delete(any(Specification.class));
 	}
 
 	@Test
@@ -232,7 +233,7 @@ public class MatchServiceImplTest {
 
 		assertThat(result.isSuccess()).isFalse();
 		assertThat(result.getError()).containsIgnoringCase("unauthorized");
-		verify(matchRepository, never()).delete(any());
+		verify(matchRepository, never()).delete(any(Specification.class));
 	}
 
 	@Test
@@ -252,7 +253,7 @@ public class MatchServiceImplTest {
 
 		assertThat(result.isSuccess()).isFalse();
 		assertThat(result.getError()).containsIgnoringCase("do not have permission");
-		verify(matchRepository, never()).delete(any());
+		verify(matchRepository, never()).delete(any(Specification.class));
 	}
 
 	@Test
@@ -291,10 +292,11 @@ public class MatchServiceImplTest {
 		Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.asc("owner")));
 		Page<Match> matchPage = new PageImpl<>(matches, pageable, matches.size());
 
-		when(matchRepository.findAll(any(Pageable.class))).thenReturn(matchPage);
+		when(matchRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(matchPage);
 
 		// Act
-		Result<Page<MatchDTO>> result = matchService.getPaginatedMatches(page, size, sortBy, direction);
+		Result<Page<MatchDTO>> result = matchService.getPaginatedMatches(page, size, sortBy, direction, null, null,
+				null);
 
 		// Assert
 		assertThat(result.isSuccess()).isTrue();
@@ -318,10 +320,11 @@ public class MatchServiceImplTest {
 		Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.asc("sport")));
 		Page<Match> matchPage = new PageImpl<>(matches, pageable, matches.size());
 
-		when(matchRepository.findAll(any(Pageable.class))).thenReturn(matchPage);
+		when(matchRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(matchPage);
 
 		// Act
-		Result<Page<MatchDTO>> result = matchService.getPaginatedMatches(page, size, sortBy, direction);
+		Result<Page<MatchDTO>> result = matchService.getPaginatedMatches(page, size, sortBy, direction, null, null,
+				null);
 
 		// Assert
 		assertThat(result.isSuccess()).isTrue();
@@ -346,10 +349,11 @@ public class MatchServiceImplTest {
 		Pageable pageable = PageRequest.of(page, size, sort);
 		Page<Match> matchPage = new PageImpl<>(matches, pageable, matches.size());
 
-		when(matchRepository.findAll(any(Pageable.class))).thenReturn(matchPage);
+		when(matchRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(matchPage);
 
 		// Act
-		Result<Page<MatchDTO>> result = matchService.getPaginatedMatches(page, size, sortBy, direction);
+		Result<Page<MatchDTO>> result = matchService.getPaginatedMatches(page, size, sortBy, direction, null, null,
+				null);
 
 		// Assert
 		assertThat(result.isSuccess()).isTrue();
@@ -364,7 +368,7 @@ public class MatchServiceImplTest {
 	void getMatchesPaginated_handlesException() {
 		when(matchRepository.findAll(any(Pageable.class))).thenThrow(new RuntimeException("DB down"));
 
-		Result<Page<MatchDTO>> result = matchService.getPaginatedMatches(0, 10, "sport", "desc");
+		Result<Page<MatchDTO>> result = matchService.getPaginatedMatches(0, 10, "sport", "desc", null, null, null);
 
 		assertThat(result.isSuccess()).isFalse();
 		assertThat(result.getError()).containsIgnoringCase("failed to fetch paginated matches");

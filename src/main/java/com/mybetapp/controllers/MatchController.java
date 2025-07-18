@@ -7,12 +7,15 @@ import com.mybetapp.util.Result;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
+
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,18 +30,17 @@ public class MatchController {
 
 	@GetMapping("/matches")
 	public ResponseEntity<?> getPaginatedMatches(@RequestParam(defaultValue = "0") int page,
-			@RequestParam(defaultValue = "10") int size, @RequestParam(defaultValue = "dateTime") String sortBy,
-			@RequestParam(defaultValue = "desc") String direction) {
-		LOGGER.info("Received request to fetch matches - page: {}, size: {}, sortBy: {}, direction: {}", page, size,
-				sortBy, direction);
-
-		Result<Page<MatchDTO>> result = matchService.getPaginatedMatches(page, size, sortBy, direction);
+			@RequestParam(defaultValue = "10") int size, @RequestParam(defaultValue = "matchDate") String sortBy,
+			@RequestParam(defaultValue = "desc") String direction, @RequestParam(required = false) String owner,
+			@RequestParam(required = false) String sport,
+			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate matchDate) {
+		Result<Page<MatchDTO>> result = matchService.getPaginatedMatches(page, size, sortBy, direction, owner, sport,
+				matchDate);
 
 		if (result.isSuccess()) {
 			return ResponseEntity.ok(result.getValue());
 		} else {
-			Map<String, String> error = Collections.singletonMap("error", result.getError());
-			return ResponseEntity.status(500).body(error);
+			return ResponseEntity.status(500).body(Collections.singletonMap("error", result.getError()));
 		}
 	}
 

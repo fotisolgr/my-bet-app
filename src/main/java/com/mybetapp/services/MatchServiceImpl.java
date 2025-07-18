@@ -10,15 +10,19 @@ import com.mybetapp.util.Result;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import jakarta.persistence.criteria.Predicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -37,19 +41,20 @@ public class MatchServiceImpl implements MatchService {
 	}
 
 	@Override
-	public Result<Page<MatchDTO>> getPaginatedMatches(int page, int size, String sortBy, String direction) {
-		LOGGER.info("Fetching paginated matches: page = {}, size = {}, sortBy = {}, direction = {}", page, size, sortBy,
-				direction);
+	public Result<Page<MatchDTO>> getPaginatedMatches(int page, int size, String sortBy, String direction, String owner,
+			String sport, LocalDate matchDate) {
+		LOGGER.info(
+				"Fetching paginated matches with filters - page: {}, size: {}, sortBy: {}, direction: {}, owner: {}, sport: {}, matchDate: {}",
+				page, size, sortBy, direction, owner, sport, matchDate);
 
 		try {
 			Sort sort = getSort(sortBy, direction);
-
 			Pageable pageable = PageRequest.of(page, size, sort);
-			Page<Match> pagedMatches = matchRepository.findAll(pageable);
+
+			Specification<Match> spec = buildMatchSpecification(owner, sport, matchDate);
+			Page<Match> pagedMatches = matchRepository.findAll(spec, pageable);
 			Page<MatchDTO> dtoPage = pagedMatches.map(this::getMatchDTO);
 
-			LOGGER.info("Fetched {} matches out of total {}", dtoPage.getNumberOfElements(),
-					dtoPage.getTotalElements());
 			return Result.ok(dtoPage);
 		} catch (Exception e) {
 			LOGGER.error("Error fetching paginated matches", e);
@@ -261,6 +266,24 @@ public class MatchServiceImpl implements MatchService {
 				LOGGER.warn("Unknown sortBy value '{}', defaulting to 'matchDate' descending", sortBy);
 				yield Sort.by(Sort.Order.desc("matchDate"));
 			}
+		};
+	}
+
+	private Specification<Match> buildMatchSpecification(String owner, String sport, LocalDate matchDate) {
+		return (root, query, cb) -> {
+			List<Predicate> predicates = new ArrayList<>();
+
+			if (owner != null && !owner.isEmpty()) {
+				predicates.add(cb.equal(root.get("owner"), owner));
+			}
+			if (sport != null && !sport.isEmpty()) {
+				predicates.add(cb.equal(root.get("sport"), sport));
+			}
+			if (matchDate != null) {
+				predicates.add(cb.equal(root.get("matchDate"), matchDate));
+			}
+
+			return cb.and(predicates.toArray(new Predicate[0]));
 		};
 	}
 }

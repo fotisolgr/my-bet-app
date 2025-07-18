@@ -26,6 +26,7 @@
 
   <table border="1" style="width: 100%; border-collapse: collapse;">
     <thead>
+    <!-- Header Row -->
     <tr>
       <th>Team A</th>
       <th>Team B</th>
@@ -36,35 +37,61 @@
         [style.fontWeight]="sortBy === 'matchDate' ? 'bold' : 'normal'"
       >
         Date + Time
-        <span [style.color]="sortBy === 'matchDate' ? 'black' : 'gray'">
-    ▲▼
-  </span>
+        <span [style.color]="sortBy === 'matchDate' ? 'black' : 'gray'">▲▼</span>
       </th>
-
       <th
         (click)="setSorting('sport')"
         style="cursor: pointer;"
         [style.fontWeight]="sortBy === 'sport' ? 'bold' : 'normal'"
       >
         Sport
-        <span [style.color]="sortBy === 'sport' ? 'black' : 'gray'">
-    ▲▼
-  </span>
+        <span [style.color]="sortBy === 'sport' ? 'black' : 'gray'">▲▼</span>
       </th>
-
       <th
         (click)="setSorting('owner')"
         style="cursor: pointer;"
         [style.fontWeight]="sortBy === 'owner' ? 'bold' : 'normal'"
       >
         Owner
-        <span [style.color]="sortBy === 'owner' ? 'black' : 'gray'">
-    ▲▼
-  </span>
+        <span [style.color]="sortBy === 'owner' ? 'black' : 'gray'">▲▼</span>
       </th>
-      <th>Odds</th> <!-- New column -->
+      <th>Odds</th>
+      <th></th> <!-- Action column -->
+    </tr>
+
+    <!-- Filter Row -->
+    <tr>
+      <th></th> <!-- No filter for Team A -->
+      <th></th> <!-- No filter for Team B -->
+      <th></th> <!-- No filter for Description -->
+      <th>
+        <input
+          type="date"
+          [(ngModel)]="filters.matchDate"
+          (change)="onFilterChange()"
+          placeholder="Filter Date"
+        />
+      </th>
+      <th>
+        <select [(ngModel)]="filters.sport" (change)="onFilterChange()">
+          <option value="">All Sports</option>
+          <option *ngFor="let s of availableSports" [value]="s">{{ s }}</option>
+        </select>
+      </th>
+      <th>
+        <input
+          [(ngModel)]="filters.owner"
+          (input)="onFilterChange()"
+          placeholder="Filter Owner"
+        />
+      </th>
+      <th></th> <!-- No filter for Odds -->
+      <th>
+        <button (click)="resetFilters()">Reset filters</button>
+      </th>
     </tr>
     </thead>
+
     <tbody>
     <tr *ngFor="let match of paginatedMatches">
       <td>{{ match.teamA }}</td>
@@ -77,23 +104,23 @@
         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
           <span
             *ngFor="let odd of match.odds"
-            style="background-color: #e0f7fa; padding: 4px 8px; border-radius: 6px; font-size: 0.9em; border: 1px solid #00acc1;">
+            style="background-color: #e0f7fa; padding: 4px 8px; border-radius: 6px; font-size: 0.9em; border: 1px solid #00acc1;"
+          >
             {{ odd.specifier }}: <strong>{{ odd.odd }}</strong>
           </span>
         </div>
       </td>
-      <td
-        *ngIf="match.matchOwner === loggedInUsername"
-        style="display: flex; gap: 8px; align-items: center;"
-      >
+      <td *ngIf="match.matchOwner === loggedInUsername" style="display: flex; gap: 8px; align-items: center;">
         <button (click)="openUpdatePopup(match)">Modify</button>
-        <button (click)="deleteMatch(match.matchId)" title="Delete match" style="color: red;">
-          &#x2715;
-        </button>
+        <button (click)="deleteMatch(match.matchId)" title="Delete match" style="color: red;">&#x2715;</button>
       </td>
     </tr>
     </tbody>
   </table>
+
+
+
+
 
 
   <div style="margin-top: 12px; display: flex; gap: 8px; align-items: center;">

@@ -40,16 +40,19 @@ class MatchControllerTest {
 
 		Result<Page<MatchDTO>> successResult = Result.ok(mockPage);
 
-		when(matchService.getPaginatedMatches(page, size, sortBy, direction)).thenReturn(successResult);
+		when(matchService.getPaginatedMatches(page, size, sortBy, direction, null, // owner
+				null, // sport
+				null // matchDate
+		)).thenReturn(successResult);
 
 		// Act
-		ResponseEntity<?> response = betController.getPaginatedMatches(page, size, sortBy, direction);
+		ResponseEntity<?> response = betController.getPaginatedMatches(page, size, sortBy, direction, null, null, null);
 
 		// Assert
 		assertThat(response.getStatusCodeValue()).isEqualTo(200);
 		assertThat(response.getBody()).isEqualTo(mockPage);
 
-		verify(matchService).getPaginatedMatches(page, size, sortBy, direction);
+		verify(matchService).getPaginatedMatches(page, size, sortBy, direction, null, null, null);
 	}
 
 	@Test
@@ -63,10 +66,12 @@ class MatchControllerTest {
 		String errorMessage = "Database error";
 		Result<Page<MatchDTO>> failureResult = Result.error(errorMessage);
 
-		when(matchService.getPaginatedMatches(page, size, sortBy, direction)).thenReturn(failureResult);
+		when(matchService.getPaginatedMatches(page, size, sortBy, direction, null, null, null))
+				.thenReturn(failureResult);
 
 		// Act
-		ResponseEntity<?> response = betController.getPaginatedMatches(page, size, sortBy, direction);
+		ResponseEntity<?> response = betController.getPaginatedMatches(page, size, sortBy, direction, null, null,
+				null);;
 
 		// Assert
 		assertThat(response.getStatusCodeValue()).isEqualTo(500);
@@ -74,7 +79,7 @@ class MatchControllerTest {
 		Map<String, String> errorBody = (Map<String, String>) response.getBody();
 		assertThat(errorBody).containsEntry("error", errorMessage);
 
-		verify(matchService).getPaginatedMatches(page, size, sortBy, direction);
+		verify(matchService).getPaginatedMatches(page, size, sortBy, direction, null, null, null);
 	}
 
 	@Test

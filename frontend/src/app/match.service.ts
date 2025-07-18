@@ -74,15 +74,22 @@ export class MatchService {
     page: number,
     size: number,
     sortBy: string = 'dateTime',
-    direction: string = 'desc'
+    direction: string = 'desc',
+    filters?: {owner?: string; sport?: string; matchDate?: string }
   ): Observable<any> {
-    const params = new HttpParams()
-      .set('page', page)
-      .set('size', size)
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString())
       .set('sortBy', sortBy)
       .set('direction', direction);
 
-    return this.http.get<any>(`${this.getPaginatedMatchesApiUrl}`, { params: params });
+    if (filters) {
+      if (filters.owner) params = params.set('owner', filters.owner);
+      if (filters.sport) params = params.set('sport', filters.sport);
+      if (filters.matchDate) params = params.set('matchDate', filters.matchDate);
+    }
+
+    return this.http.get<any>(`${this.getPaginatedMatchesApiUrl}`, { params });
   }
 
   saveMatch(match: SaveMatchRequest, token: string) {

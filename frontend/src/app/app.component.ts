@@ -291,5 +291,33 @@ export class AppComponent implements OnInit {
     };
   }
 
+  filters = {
+    owner: '',
+    sport: '',
+    matchDate: ''
+  };
+
+  availableSports = ['FOOTBALL', 'BASKETBALL']; // Or fetched from backend
+
+  onFilterChange() {
+    const { owner, sport, matchDate } = this.filters;
+
+    this.matchService
+      .getPaginatedMatches(this.currentPage, this.pageSize, this.sortBy, this.sortDirection, {
+        owner,
+        sport,
+        matchDate
+      })
+      .subscribe((result) => {
+        this.paginatedMatches = result.content;
+        this.totalPages = result.totalPages;
+      });
+  }
+
+  resetFilters() {
+    this.filters = { owner: '', sport: '', matchDate: '' };
+    this.onFilterChange();
+  }
+
 
 }
