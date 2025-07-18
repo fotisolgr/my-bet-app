@@ -1,0 +1,58 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: my-postgres
+    networks:
+      - mynetwork
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: my-bet-app-db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  keycloak:
+    image: quay.io/keycloak/keycloak
+    ports:
+      - "8188:8080"
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+    command:
+      - start-dev
+      - --import-realm
+    volumes:
+      - ./realm-export.json:/opt/keycloak/data/import/realm.json
+    networks:
+      - mynetwork
+
+  my-bet-app:
+    image: eclipse-temurin:21-jre-alpine
+    command: java -jar /app/my-springboot-app-0.0.1-SNAPSHOT.jar
+    volumes:
+      - ../target:/app
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - mynetwork
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/my-bet-app-db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SPRING_PROFILES_ACTIVE=prod  # Optional
+    ports:
+      - "8888:8888"
+    depends_on:
+      - postgres
+
+volumes:
+  postgres-data:
+
+networks:
+  mynetwork:
+    driver: bridge
+
+
+

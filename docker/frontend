@@ -1,0 +1,17 @@
+# Use Node 18 Alpine for smaller image
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Copy package files and install dependencies
+COPY ../frontend/package*.json ./
+RUN npm install
+
+# Copy the rest of your app source
+COPY ../frontend .
+
+# Expose port 4200
+EXPOSE 4200
+
+# Run npm start (usually runs ng serve)
+CMD ["npm", "start"]

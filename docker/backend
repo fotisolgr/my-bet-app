@@ -1,0 +1,19 @@
+FROM eclipse-temurin:21-jre-alpine
+
+WORKDIR /app
+
+# Copy your Spring Boot jar file into the image
+COPY ../target/my-bet-app-0.0.1-SNAPSHOT.jar app.jar
+
+
+# Set environment variables
+ENV SPRING_DATASOURCE_URL=jdbc:postgresql://my-postgres:5432/my-bet-app-db \
+    SPRING_DATASOURCE_USERNAME=postgres \
+    SPRING_DATASOURCE_PASSWORD=postgres \
+    SPRING_PROFILES_ACTIVE=prod
+
+# Expose port 8888
+EXPOSE 8888
+
+# Start the Spring Boot application
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]

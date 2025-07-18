@@ -1,0 +1,13 @@
+FROM quay.io/keycloak/keycloak
+
+# Set environment variables
+ENV KC_BOOTSTRAP_ADMIN_USERNAME=admin \
+    KC_BOOTSTRAP_ADMIN_PASSWORD=admin
+
+COPY realm-export.json /opt/keycloak/data/import/realm.json
+
+# Expose Keycloak default port
+EXPOSE 8080
+
+# Start Keycloak in development mode with realm import
+ENTRYPOINT ["/opt/keycloak/bin/kc.sh", "start-dev", "--import-realm"]

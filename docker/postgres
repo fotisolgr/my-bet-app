@@ -1,0 +1,12 @@
+FROM postgres:15
+
+# Set environment variables
+ENV POSTGRES_DB=my-bet-app-db
+ENV POSTGRES_USER=postgres
+ENV POSTGRES_PASSWORD=postgres
+
+# Optional: Add custom SQL scripts for initialization
+# COPY ./init.sql /docker-entrypoint-initdb.d/
+
+# Optional: Expose port explicitly (for documentation)
+EXPOSE 5432
