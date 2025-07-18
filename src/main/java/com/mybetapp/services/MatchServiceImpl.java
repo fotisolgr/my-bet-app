@@ -3,6 +3,7 @@ package com.mybetapp.services;
 import com.mybetapp.dto.MatchDTO;
 import com.mybetapp.entities.Match;
 import com.mybetapp.entities.MatchOdds;
+import com.mybetapp.enums.Sanitization;
 import com.mybetapp.enums.Sport;
 import com.mybetapp.models.SaveMatchRequest;
 import com.mybetapp.repositories.MatchRepository;
@@ -51,7 +52,8 @@ public class MatchServiceImpl implements MatchService {
 			Sort sort = getSort(sortBy, direction);
 			Pageable pageable = PageRequest.of(page, size, sort);
 
-			Specification<Match> spec = buildMatchSpecification(owner, sport, matchDate);
+			Specification<Match> spec = buildMatchSpecification(sanitizeUserInput(owner, Sanitization.LOWERCASE), sport,
+					matchDate);
 			Page<Match> pagedMatches = matchRepository.findAll(spec, pageable);
 			Page<MatchDTO> dtoPage = pagedMatches.map(this::getMatchDTO);
 
@@ -69,8 +71,8 @@ public class MatchServiceImpl implements MatchService {
 
 		LocalDate matchDate = parseDate(saveMatchRequest.getMatchDate());
 		LocalTime matchTime = parseTime(saveMatchRequest.getMatchTime());
-		String teamA = sanitizeUserInput(saveMatchRequest.getTeamA());
-		String teamB = sanitizeUserInput(saveMatchRequest.getTeamB());
+		String teamA = sanitizeUserInput(saveMatchRequest.getTeamA(), Sanitization.UPPERCASE);
+		String teamB = sanitizeUserInput(saveMatchRequest.getTeamB(), Sanitization.UPPERCASE);
 		Sport sport = saveMatchRequest.getSport();
 
 		String currentUser = getCurrentUsername();
@@ -186,11 +188,11 @@ public class MatchServiceImpl implements MatchService {
 
 	private void mapRequestToMatch(SaveMatchRequest request, Match match) {
 		match.setOwner(getCurrentUsername());
-		match.setDescription(sanitizeUserInput(request.getDescription()));
+		match.setDescription(sanitizeUserInput(request.getDescription(), Sanitization.UPPERCASE));
 		match.setMatchDate(parseDate(request.getMatchDate()));
 		match.setMatchTime(parseTime(request.getMatchTime()));
-		match.setTeamA(sanitizeUserInput(request.getTeamA()));
-		match.setTeamB(sanitizeUserInput(request.getTeamB()));
+		match.setTeamA(sanitizeUserInput(request.getTeamA(), Sanitization.UPPERCASE));
+		match.setTeamB(sanitizeUserInput(request.getTeamB(), Sanitization.UPPERCASE));
 		match.setSport(request.getSport());
 
 		// Clear odds before setting new ones to avoid duplicates on update
@@ -221,7 +223,19 @@ public class MatchServiceImpl implements MatchService {
 		return null;
 	}
 
-	private String sanitizeUserInput(String input) {
+	private String sanitizeUserInput(String input, Sanitization sanitization) {
+		if (input == null) {
+			return null;
+		}
+
+		if (Sanitization.LOWERCASE.equals(sanitization)) {
+			return input.trim().toLowerCase();
+		}
+
+		return input.trim().toUpperCase();
+	}
+
+	private String sanitize(String input) {
 		if (input == null) {
 			return null;
 		}
