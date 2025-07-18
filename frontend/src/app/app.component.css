@@ -1,0 +1,185 @@
+/* General layout */
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+/* Auth buttons */
+.auth-buttons {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px; /* ✅ Adds space between items */
+  margin-bottom: 20px;
+}
+
+
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+  margin-bottom: 30px;
+}
+
+th, td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+th {
+  background-color: #f4f4f4;
+}
+
+tr:hover {
+  background-color: #f9f9f9;
+}
+
+/* Form inputs */
+input,
+textarea,
+select {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+/* Buttons */
+button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s ease-in-out;
+  margin-right: 8px; /* ✅ Add spacing between buttons */
+}
+
+button:last-child {
+  margin-right: 0; /* Prevent extra space after last button */
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+/* Messages */
+.error-inline {
+  color: #dc3545;
+  margin-left: 10px;
+  margin-bottom: 0;
+  font-weight: 600;
+}
+
+.success-inline {
+  color: #28a745;
+  margin-left: 10px;
+  margin-bottom: 0;
+  font-weight: 600;
+}
+
+/* Section spacing */
+.search-sort {
+  margin: 20px 0;
+}
+
+.new-match-form {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid #ddd;
+}
+
+.clickable-username {
+  all: unset;              /* Reset all inherited styles */
+  cursor: pointer;         /* Keep it clickable */
+  padding: 0.5rem;         /* Optional: Add padding */
+  display: inline-block;   /* So padding works */
+  color: inherit;          /* Inherit text color from parent */
+}
+
+.clickable-username:hover {
+  text-decoration: underline;
+}
+
+.clickable-header {
+  all: unset;              /* Reset all inherited styles */
+  cursor: pointer;         /* Keep it clickable */
+  padding: 0.5rem;         /* Optional: Add padding */
+  display: inline-block;   /* So padding works */
+  font-weight: bold;       /* Optional */
+  color: inherit;          /* Inherit text color from parent */
+}
+
+/* In your component stylesheet (.component.css or .scss) */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 998;
+}
+
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  padding: 24px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 600px;
+  z-index: 999;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+}
+
+.modal-content {
+  position: relative;
+}
+
+.close {
+  position: absolute;
+  top: 4px;
+  right: 8px;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.delete-btn {
+  color: red;
+  margin-left: 8px;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+}

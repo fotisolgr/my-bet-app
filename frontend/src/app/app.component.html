@@ -1,0 +1,188 @@
+<!-- src/app/app.component.html -->
+<div class="container">
+
+  <div class="auth-buttons">
+    <ng-container *ngIf="!isLoggedIn; else loggedInBlock">
+      <button (click)="onLogin()">Login</button>
+      <button (click)="onRegister()">Sign up</button>
+    </ng-container>
+
+    <ng-template #loggedInBlock>
+      <span>Welcome, {{ loggedInUsername }}</span>
+      <button (click)="onLogout()">Logout</button>
+    </ng-template>
+  </div>
+
+  <h2>
+      Available Matches ({{ paginatedMatches.length }})
+    <div *ngIf="isLoggedIn" style="display: flex; gap: 10px; margin-bottom: 12px;">
+      <button (click)="showAddMatchModal = true">Add Match</button>
+    </div>
+    </h2>
+
+  <div *ngIf="getMatchesErrorMessage" class="alert alert-danger" role="alert">
+    {{ getMatchesErrorMessage }}
+  </div>
+
+  <table border="1" style="width: 100%; border-collapse: collapse;">
+    <thead>
+    <tr>
+      <th>Team A</th>
+      <th>Team B</th>
+      <th>Description</th>
+      <th
+        (click)="setSorting('matchDate')"
+        style="cursor: pointer;"
+        [style.fontWeight]="sortBy === 'matchDate' ? 'bold' : 'normal'"
+      >
+        Date + Time
+        <span [style.color]="sortBy === 'matchDate' ? 'black' : 'gray'">
+    ▲▼
+  </span>
+      </th>
+
+      <th
+        (click)="setSorting('sport')"
+        style="cursor: pointer;"
+        [style.fontWeight]="sortBy === 'sport' ? 'bold' : 'normal'"
+      >
+        Sport
+        <span [style.color]="sortBy === 'sport' ? 'black' : 'gray'">
+    ▲▼
+  </span>
+      </th>
+
+      <th
+        (click)="setSorting('owner')"
+        style="cursor: pointer;"
+        [style.fontWeight]="sortBy === 'owner' ? 'bold' : 'normal'"
+      >
+        Owner
+        <span [style.color]="sortBy === 'owner' ? 'black' : 'gray'">
+    ▲▼
+  </span>
+      </th>
+      <th>Odds</th> <!-- New column -->
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let match of paginatedMatches">
+      <td>{{ match.teamA }}</td>
+      <td>{{ match.teamB }}</td>
+      <td>{{ match.description }}</td>
+      <td>{{ match.matchDate }} {{ match.matchTime }}</td>
+      <td>{{ match.sport }}</td>
+      <td>{{ match.matchOwner }}</td>
+      <td>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <span
+            *ngFor="let odd of match.odds"
+            style="background-color: #e0f7fa; padding: 4px 8px; border-radius: 6px; font-size: 0.9em; border: 1px solid #00acc1;">
+            {{ odd.specifier }}: <strong>{{ odd.odd }}</strong>
+          </span>
+        </div>
+      </td>
+      <td
+        *ngIf="match.matchOwner === loggedInUsername"
+        style="display: flex; gap: 8px; align-items: center;"
+      >
+        <button (click)="openUpdatePopup(match)">Modify</button>
+        <button (click)="deleteMatch(match.matchId)" title="Delete match" style="color: red;">
+          &#x2715;
+        </button>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+
+
+  <div style="margin-top: 12px; display: flex; gap: 8px; align-items: center;">
+    <button (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 0">Previous</button>
+
+    <span>Page {{ currentPage + 1 }} of {{ totalPages }}</span>
+
+    <button (click)="goToPage(currentPage + 1)" [disabled]="currentPage + 1 >= totalPages">Next</button>
+  </div>
+
+    <ng-template #noMatches>
+        <p>No matches available.</p>
+    </ng-template>
+
+  <div class="modal-overlay" *ngIf="isUpdatePopupOpen">
+    <div class="modal-content">
+      <h3>Update Match</h3>
+      <form (ngSubmit)="updateMatch()" *ngIf="matchToUpdate">
+        <textarea [(ngModel)]="matchToUpdate.description" name="description" required></textarea>
+
+        <input type="date" [(ngModel)]="matchToUpdate.matchDate" name="matchDate" required />
+        <input type="time" [(ngModel)]="matchToUpdate.matchTime" name="matchTime" required />
+
+        <input type="text" [(ngModel)]="matchToUpdate.teamA" name="teamA" required />
+        <input type="text" [(ngModel)]="matchToUpdate.teamB" name="teamB" required />
+
+        <select [(ngModel)]="matchToUpdate.sport" name="sport" required>
+          <option *ngFor="let s of sports" [value]="s">{{ s }}</option>
+        </select>
+
+        <!-- odds update: you can customize this -->
+        <div *ngFor="let odd of matchToUpdate.odds; let i = index">
+          <select [(ngModel)]="odd.specifier" name="specifier{{i}}" required>
+            <option *ngFor="let spec of specifiers" [value]="spec">{{ spec }}</option>
+          </select>
+          <input type="number" [(ngModel)]="odd.odd" name="oddValue{{i}}" min="0" step="0.01" required />
+        </div>
+
+        <button type="submit">Update Match</button>
+        <div *ngIf="saveMatchErrorMessage" class="alert alert-danger" role="alert">
+          {{ saveMatchErrorMessage }}
+        </div>
+        <button type="button" (click)="closeUpdatePopup()">Cancel</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Backdrop -->
+  <div class="modal-backdrop" *ngIf="showAddMatchModal"></div>
+
+  <!-- Modal Dialog -->
+  <div class="modal" *ngIf="showAddMatchModal">
+    <div class="modal-content">
+      <span class="close" (click)="closeAddMatchModal()">&times;</span>
+      <h3>Add a new Match</h3>
+      <form (ngSubmit)="saveMatch()">
+        <textarea [(ngModel)]="match.description" name="description" placeholder="Description" rows="4"></textarea>
+
+        <input type="date" [(ngModel)]="match.matchDate" name="matchDate" required />
+        <input type="time" [(ngModel)]="match.matchTime" name="matchTime" required />
+        <input type="text" [(ngModel)]="match.teamA" name="teamA" placeholder="Team A" required />
+        <input type="text" [(ngModel)]="match.teamB" name="teamB" placeholder="Team B" required />
+
+        <select [(ngModel)]="match.sport" name="sport" required>
+          <option *ngFor="let s of sports" [value]="s">{{ s }}</option>
+        </select>
+
+        <div class="odds-section">
+          <h4>Odds</h4>
+
+          <div *ngFor="let spec of specifiers; let i = index" class="odd-row">
+            <label>{{ spec }}</label>
+            <input
+              type="number"
+              [ngModel]="getOddValue(spec)"
+            (ngModelChange)="setOddValue(spec, $event)"
+            name="odd{{ i }}"
+            min="0"
+            step="0.01"
+            required
+            />
+          </div>
+        </div>
+
+        <button type="submit" style="margin-top: 16px;">Save Match</button>
+        <div *ngIf="saveMatchErrorMessage" class="alert alert-danger" role="alert">
+          {{ saveMatchErrorMessage }}
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
