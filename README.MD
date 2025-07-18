@@ -168,11 +168,27 @@ docker run -d --name my-frontend -p 4200:4200 --network my-bet-app-network my-fr
 
 ### Run services by just using docker
 
-`docker network create my-bet-app-network`
-`docker run -d --name my-postgres -p 5432:5432 --network my-bet-app-network fotisolgr/my-postgres:latest`
-`docker run -d --name my-keycloak -p 8188:8080 --network my-bet-app-network fotisolgr/my-keycloak:latest`
-`docker run -d --name my-bet-app -p 8888:8888 --network my-bet-app-network fotisolgr/my-bet-app:latest`
-`docker run -d --name my-frontend -p 4200:4200 --network my-bet-app-network fotisolgr/my-frontend:latest`
+```
+docker network create my-bet-app-network
+
+```
+
+```
+docker run -d --name my-postgres -p 5432:5432 --network my-bet-app-network fotisolgr/my-postgres:latest
+```
+
+```
+docker run -d --name my-keycloak -p 8188:8080 --network my-bet-app-network fotisolgr/my-keycloak:latest
+
+```
+
+```
+docker run -d --name my-bet-app -p 8888:8888 --network my-bet-app-network fotisolgr/my-bet-app:latest
+```
+
+```
+docker run -d --name my-frontend -p 4200:4200 --network my-bet-app-network fotisolgr/my-frontend:latest
+```
 
 ### Access application
 
